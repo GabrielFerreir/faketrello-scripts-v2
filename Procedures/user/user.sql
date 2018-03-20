@@ -22,8 +22,7 @@ END;
 $$
 LANGUAGE plpgsql;
 -- EXEMPLO
-SELECT *
-FROM existsEmailUser('gabrielferrer@outlook.com.br');
+SELECT * FROM existsEmailUser('gabrielferrer@outlook.com.br');
 
 CREATE OR REPLACE FUNCTION insertUser(
   pName  VARCHAR,
@@ -55,8 +54,7 @@ END;
 $$
 LANGUAGE plpgsql;
 -- EXEMPLO
-SELECT *
-FROM insertUser('Gabriel', 'Gabrielferrer2@outlook.com.br', '9141', '');
+SELECT * FROM insertUser('Gabriel', 'Gabrielferrer2@outlook.com.br', '9141', '');
 
 CREATE OR REPLACE FUNCTION changeUser(
   pId      INTEGER,
@@ -161,23 +159,30 @@ BEGIN
 END;
 $$
 LANGUAGE plpgsql;
+SELECT * FROM verifyChangeEmail(21, 'gabrielferrer2@outlook.com.br');
 
-SELECT *
-FROM verifyChangeEmail(21, 'gabrielferrer2@outlook.com.br');
+CREATE OR REPLACE FUNCTION generateToken(
+  pEMail  VARCHAR,
+  pPass   VARCHAR
+) RETURNS JSON AS $$
+  BEGIN
+    IF EXISTS(SELECT id
+              FROM public.user
+              WHERE email ILIKE pEmail AND pPass = pass) THEN
+      RETURN
+      json_build_object(
+          'message', 'OK'
+      );
 
--- DECLARE
---   vCaminhoAntigo varchar;
--- BEGIN
---
--- SELECT img INTO vCaminhoAntigo FROM user WHERE id = pId;
+      ELSE
+        RETURN
+        json_build_object(
+            'executionCode', 1,
+            'message', 'Usuario ou senha não encontrados'
+        );
+    END IF;
+  END;
+  $$
+LANGUAGE plpgsql;
 
--- IF pImg IS NOT NULL THEN
---   update user set img = pImg where id = pId;
--- END IF;
---
--- update user set nome = pNome, email =  pEmail;
---
--- return json_build_object(
--- 'caminho antigo', vCaminhoAntigo
--- )
--- END
+SELECT * FROM generateToken('gabrielferrer@outlook.com.br', '123321');
