@@ -165,13 +165,22 @@ CREATE OR REPLACE FUNCTION generateToken(
   pEMail  VARCHAR,
   pPass   VARCHAR
 ) RETURNS JSON AS $$
+DECLARE
+  vId INTEGER;
   BEGIN
     IF EXISTS(SELECT id
               FROM public.user
               WHERE email ILIKE pEmail AND pPass = pass) THEN
+
+      SELECT id
+      INTO vId
+      FROM public.user
+      WHERE email ILIKE pEmail AND pPass = pass;
+
       RETURN
       json_build_object(
-          'message', 'OK'
+          'message', 'OK',
+          'id',  vId
       );
 
       ELSE
@@ -185,4 +194,4 @@ CREATE OR REPLACE FUNCTION generateToken(
   $$
 LANGUAGE plpgsql;
 
-SELECT * FROM generateToken('gabrielferrer@outlook.com.br', '123321');
+SELECT * FROM generateToken('gabrielferrer@outlook.com.br', '123');
